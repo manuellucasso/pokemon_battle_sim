@@ -1,3 +1,6 @@
+import random
+from move import get_move_set_for_pokemon
+
 class Pokemon:
     def __init__(self, name, type, level, istats, moves=None, status_conditions=None):
         """
@@ -18,7 +21,8 @@ class Pokemon:
         self.xp_max = self.stats['XP']   # Threshold for the next level
 
         # Move set and status management
-        self.moves = moves if moves else []
+        self.move_set_list = get_move_set_for_pokemon(name)  # Assume this function retrieves the move set list for the Pokemon
+        self.moves = moves if moves else self.initial_move_set(self.move_set_list)
         self.status_conditions = status_conditions if status_conditions else []
 
     def gain_xp(self, xp):
@@ -50,6 +54,12 @@ class Pokemon:
         # Proportional HP increase based on the growth of hp_max
         hp_increase = self.hp_max - self.hp_current_max
         self.hp_current += hp_increase
+
+        # Check for move learning opportunities at the new level
+        move_set_list = get_move_set_for_pokemon(self.name)  # Retrieve the move set list for the Pokemon
+        for move in move_set_list:
+            if move['level'] == self.level:
+                self.learn_move(move['move'])
 
     def stats_calculator(self, level, initial_stats):
         """
@@ -96,3 +106,21 @@ class Pokemon:
                     print(f"1, 2, 3 and... Done! {self.name} forgot {forgotten_move.name} and learned {move.name}!")    
                 else:
                     print("Invalid choice. No move was forgotten.")
+
+
+    def initial_move_set(self, move_list):
+        """
+        Initializes the Pokemon's move set based on its level and a provided move list.
+        """
+
+        # Available moves at the current level
+        available_moves = [m['move'] for m in move_list if m['level'] is not None and m['level'] <= self.level]
+        
+        # Get the 6th strongest moves from the available moves
+        initial_moves = available_moves[-6:]
+
+        # If there are more than 6 moves, randomly select 4 from the last 6
+        if len(initial_moves) > 4:
+            return random.sample(initial_moves, 4)          
+
+        return initial_moves         
