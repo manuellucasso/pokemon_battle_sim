@@ -1,5 +1,5 @@
 import random
-from move import get_move_set_for_pokemon
+from move import Move
 
 class Pokemon:
     def __init__(self, name, type, level, istats, moves=None, status_conditions=None):
@@ -21,7 +21,7 @@ class Pokemon:
         self.xp_max = self.stats['XP']   # Threshold for the next level
 
         # Move set and status management
-        self.move_set_list = get_move_set_for_pokemon(name)  # Assume this function retrieves the move set list for the Pokemon
+        self.move_set_list = Move.get_move_set_for_pokemon(name) 
         self.moves = moves if moves else self.initial_move_set(self.move_set_list)
         self.status_conditions = status_conditions if status_conditions else []
 
@@ -56,7 +56,7 @@ class Pokemon:
         self.hp_current += hp_increase
 
         # Check for move learning opportunities at the new level
-        move_set_list = get_move_set_for_pokemon(self.name)  # Retrieve the move set list for the Pokemon
+        move_set_list = Move.get_move_set_for_pokemon(self.name)  
         for move in move_set_list:
             if move['level'] == self.level:
                 self.learn_move(move['move'])
