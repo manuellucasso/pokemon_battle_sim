@@ -76,15 +76,17 @@ class Pokemon:
         current_stats = {}
         
         # HP Calculation (20% growth per level)
-        current_stats['HP'] = initial_stats["HP"] + max(initial_stats["HP"] * 0.2 * (level - 1),1) 
+        current_stats['HP'] = int(initial_stats['HP']*2*level/100 +10+level)
         
         # XP Threshold (Power law growth for difficulty curve)
-        current_stats['XP'] = int(100 * (level ** 1.5)) 
+        current_stats['XP'] = level ** 3 
         current_stats['XP_reward'] = int(current_stats['XP'] * 0.1)
         
         # Combat Stats (10% growth per level)
-        for stat in ['Attack', 'Defense', 'SpAtk', 'SpDef', 'Speed', 'Total']:
-            current_stats[stat] = initial_stats[stat] + max(initial_stats[stat] * 0.1 * (level - 1),1)  
+        for stat in ['Attack', 'Defense', 'SpAtk', 'SpDef', 'Speed']:
+            current_stats[stat] = int(initial_stats[stat]*2*level/100 +5)
+
+        current_stats['Total'] = sum(current_stats[stat] for stat in ['Attack', 'Defense', 'SpAtk', 'SpDef', 'Speed']) + current_stats['HP']    
 
         return current_stats
     
