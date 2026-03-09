@@ -22,7 +22,7 @@ class Pokemon:
         self.stats = self.stats_calculator(self.level, self.initial_stats)
        
         # Dynamic battle attributes
-        self.hp_max = stats_ref['HP']
+        self.hp_max = self.stats['HP']
         self.hp_current = self.hp_max    # Starts with full HP
         self.xp_current = 0              # Accumulated experience
         self.xp_max = self.stats['XP']   # Threshold for the next level
@@ -76,7 +76,7 @@ class Pokemon:
         current_stats = {}
         
         # HP Calculation (20% growth per level)
-        current_stats['HP'] = initial_stats["HP"] + initial_stats["HP"] * 0.2 * (level - 1)
+        current_stats['HP'] = initial_stats["HP"] + max(initial_stats["HP"] * 0.2 * (level - 1),1) 
         
         # XP Threshold (Power law growth for difficulty curve)
         current_stats['XP'] = int(100 * (level ** 1.5)) 
@@ -84,7 +84,7 @@ class Pokemon:
         
         # Combat Stats (10% growth per level)
         for stat in ['Attack', 'Defense', 'SpAtk', 'SpDef', 'Speed', 'Total']:
-            current_stats[stat] = int(initial_stats[stat] + (initial_stats[stat] * 0.1 * (level - 1)))
+            current_stats[stat] = initial_stats[stat] + max(initial_stats[stat] * 0.1 * (level - 1),1)  
 
         return current_stats
     
