@@ -26,32 +26,7 @@ class Move:
         self.effect = effect
 
     @staticmethod      
-    def get_move_set_for_pokemon(pokemon_name, moves_library):    
-        """
-        Retrieves moves for a specific Pokemon by looking up pre-loaded 
-        move objects from the provided library.
-        """
-        move_set = []
-        try:
-            with open('pokemon_learnsets.csv', mode='r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    if row['pokemon'] == pokemon_name:
-                        move_name = row['move_name']
-                        
-                        # Get the object from the library (pre-loaded in memory)
-                        if move_name in moves_library:
-                            m = moves_library[move_name]
-                            lvl = int(row['level']) if row['level'] else None
-                            move_set.append({'level': lvl, 'move': m})
-        except FileNotFoundError:
-            print("Error: pokemon_learnsets.csv not found.")
-            
-        return move_set
-    
-
-    @staticmethod      
-    def get_all_moves(moves_library):    
+    def get_all_moves():    
         """
         Retrieves all moves from the provided library.
         """
