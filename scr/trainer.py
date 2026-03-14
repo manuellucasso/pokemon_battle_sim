@@ -68,7 +68,7 @@ class Trainer:
         available_moves = pokemon.move_manager.active_moves 
         
         for i, move in enumerate(available_moves):
-            print(f"[{i}] {move.name} (PP: {move.pp})")
+            print(f"[{i}] {move} (PP: {pokemon.move_manager.current_pp[move]})")
             
         try:
             choice = int(input("Select a move index: "))
