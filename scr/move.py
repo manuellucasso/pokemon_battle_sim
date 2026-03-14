@@ -1,4 +1,5 @@
 import csv
+import os
 
 class Move:
     """
@@ -26,13 +27,15 @@ class Move:
         self.effect = effect
 
     @staticmethod      
-    def get_all_moves():    
+    def get_all_moves(data_dir):    
         """
         Retrieves all moves from the provided library.
         """
+        
+        moves_file = os.path.join(data_dir, 'move_set.csv')
         moves_dict = {}
         try:
-            with open('move_set.csv', mode='r', encoding='utf-8') as f:
+            with open(moves_file, mode='r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     # Instantiate a Move object for each entry in the CSV
