@@ -99,5 +99,15 @@ class Pokemon:
 
         return current_stats
     
+    # Em pokemon.py
+    def is_fainted(self):
+        """
+        Checks if the Pokemon has fainted (HP reached 0).
+        """
+        if self.hp_current <= 0:
+            return True
+        else:
+            return False 
+    
 
     
