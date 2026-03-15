@@ -129,6 +129,12 @@ class Battle:
                 print(f"\n{pokemon1.name} fainted!")
                 if not self.handle_faint(self.t1): return 
 
+        print("\n" + "-"*30)
+        print("STATUS UPDATE:")
+        print(f"{pokemon1.name}: {pokemon1.hp_current}/{pokemon1.hp_max} HP")
+        print(f"{pokemon2.name}: {pokemon2.hp_current}/{pokemon2.hp_max} HP")
+        print("-"*30)        
+
     def get_battle_action(self, trainer):
         """
         Displays the battle menu and returns the selected action.
@@ -150,12 +156,12 @@ class Battle:
             print("Action not available yet! Please select again.")
             return self.get_battle_action(trainer) 
 
-    def bonus_type(self, move_type, defender_types):
+    def bonus_type(self, move_type, defender_type):
         """
         Calculates type effectiveness. Multiplies values for dual-type defenders.
         """
         modifier = 1.0
-        for d_type in defender_types:
+        for d_type in defender_type:
             if move_type in TYPE_CHART:
                 modifier *= TYPE_CHART[move_type].get(d_type, 1.0)
         return modifier
@@ -182,14 +188,14 @@ class Battle:
         # Official Damage Formula components
         level_part = (2 * attacker.level / 5) + 2
         stat_ratio = attacker.stats['Attack'] / defender.stats['Defense']
-        base_damage = ((level_part * move_data.power * stat_ratio) / 50) + 2
+        base_damage = ((level_part * int(move_data.power) * stat_ratio) / 50) + 2
         random_factor = random.uniform(0.85, 1.0)
             
         # STAB check: x1.5 if move type matches attacker's type
-        stab = 1.5 if move_data.type in attacker.types else 1.0
+        stab = 1.5 if move_data.type in attacker.type else 1.0
 
         # Type effectiveness calculation
-        type_modifier = self.bonus_type(move_data.type, defender.types)
+        type_modifier = self.bonus_type(move_data.type, defender.type)
         if type_modifier > 1:
             print("It's super effective!")
         elif 0 < type_modifier < 1:

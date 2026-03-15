@@ -2,6 +2,7 @@ from pokemon import Pokemon
 from move import Move
 from data_loader import MOVES_LIBRARY
 from trainer import Trainer
+from battle import Battle
 
 def test_suite(GLOBAL_POKEMON_DATA, GLOBAL_MOVES_LIBRARY):
     print("\n--- Sample Trainer Creation ---")
@@ -58,3 +59,33 @@ def test_suite(GLOBAL_POKEMON_DATA, GLOBAL_MOVES_LIBRARY):
     print(f"\n--- {player1.name}'s is switching his first pokemon to {player1.get_active_pokemon().name} ---")
 
     player1.choose_move()
+
+    # --- Testing Battle System ---
+    print("\n--- Opponent Trainer Creation ---")
+    # We'll create a rival for Manuel to test the Battle class
+    rival = Trainer(name="Rival Gary", is_ai=True)
+
+    # Create a Pokemon for the rival
+    # Let's give him a Squirtle to test Type Advantages (Electric vs Water)
+    squirtle = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Squirtle'], level=5, status_conditions=None)
+    rival.add_pokemon(squirtle)
+    
+    # Give him another one to test the handle_faint method
+    pidgey = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Pidgey'], level=4, status_conditions=None)
+    rival.add_pokemon(pidgey)
+
+    print(f"\n{rival.name} enters the battle with {squirtle.name} and {pidgey.name}!")
+   
+    print("\n" + "="*30)
+    print("      STARTING BATTLE TEST")
+    print("="*30)
+    
+    # Initialize the battle instance
+    poke_battle = Battle(trainer1=player1, trainer2=rival)
+    
+    # This will run the turn-based loop until someone wins
+    # It will test: get_battle_action, run_turn, execute_attack, 
+    # bonus_type (STAB/Effectiveness), and handle_faint.
+    poke_battle.start()
+
+    print("\n--- Test Suite Completed Successfully ---")
