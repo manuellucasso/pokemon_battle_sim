@@ -12,7 +12,7 @@ class Pokemon:
         stats_ref = POKEMON_DATA['base_stats']
         
         self.name = stats_ref['Name']
-        self.type = stats_ref['Type']
+        self.type = stats_ref['Type'].split()
         self.level = level
         
         # Getting the reference stats from the base stats in the POKEMON_DATA
@@ -99,7 +99,6 @@ class Pokemon:
 
         return current_stats
     
-    # Em pokemon.py
     def is_fainted(self):
         """
         Checks if the Pokemon has fainted (HP reached 0).

@@ -1,6 +1,28 @@
 import random
 from data_loader import MOVES_LIBRARY
 
+# Type Effectiveness Chart
+TYPE_CHART = {
+    "Normal": {"Rock": 0.5, "Ghost": 0.0, "Steel": 0.5},
+    "Fire": {"Fire": 0.5, "Water": 0.5, "Grass": 2.0, "Ice": 2.0, "Bug": 2.0, "Rock": 0.5, "Dragon": 0.5, "Steel": 2.0},
+    "Water": {"Fire": 2.0, "Water": 0.5, "Grass": 0.5, "Ground": 2.0, "Rock": 2.0, "Dragon": 0.5},
+    "Electric": {"Water": 2.0, "Grass": 0.5, "Electric": 0.5, "Ground": 0.0, "Flying": 2.0, "Dragon": 0.5},
+    "Grass": {"Fire": 0.5, "Water": 2.0, "Grass": 0.5, "Poison": 0.5, "Ground": 2.0, "Flying": 0.5, "Bug": 0.5, "Rock": 2.0, "Dragon": 0.5, "Steel": 0.5},
+    "Ice": {"Fire": 0.5, "Water": 0.5, "Grass": 2.0, "Ice": 0.5, "Ground": 2.0, "Flying": 2.0, "Dragon": 2.0, "Steel": 0.5},
+    "Fighting": {"Normal": 2.0, "Ice": 2.0, "Rock": 2.0, "Dark": 2.0, "Steel": 2.0, "Poison": 0.5, "Flying": 0.5, "Psychic": 0.5, "Bug": 0.5, "Ghost": 0.0, "Fairy": 0.5},
+    "Poison": {"Grass": 2.0, "Poison": 0.5, "Ground": 0.5, "Rock": 0.5, "Ghost": 0.5, "Steel": 0.0, "Fairy": 2.0},
+    "Ground": {"Fire": 2.0, "Electric": 2.0, "Grass": 0.5, "Poison": 2.0, "Flying": 0.0, "Bug": 0.5, "Rock": 2.0, "Steel": 2.0},
+    "Flying": {"Electric": 0.5, "Grass": 2.0, "Fighting": 2.0, "Bug": 2.0, "Rock": 0.5, "Steel": 0.5},
+    "Psychic": {"Fighting": 2.0, "Poison": 2.0, "Psychic": 0.5, "Dark": 0.0, "Steel": 0.5},
+    "Bug": {"Fire": 0.5, "Grass": 2.0, "Fighting": 0.5, "Poison": 0.5, "Flying": 0.5, "Psychic": 2.0, "Ghost": 0.5, "Dark": 2.0, "Steel": 0.5, "Fairy": 0.5},
+    "Rock": {"Fire": 2.0, "Ice": 2.0, "Fighting": 0.5, "Ground": 0.5, "Flying": 2.0, "Bug": 2.0, "Steel": 0.5},
+    "Ghost": {"Normal": 0.0, "Psychic": 2.0, "Ghost": 2.0, "Dark": 0.5},
+    "Dragon": {"Dragon": 2.0, "Steel": 0.5, "Fairy": 0.0},
+    "Dark": {"Fighting": 0.5, "Psychic": 2.0, "Ghost": 2.0, "Dark": 0.5, "Fairy": 0.5},
+    "Steel": {"Fire": 0.5, "Water": 0.5, "Electric": 0.5, "Ice": 2.0, "Rock": 2.0, "Steel": 0.5, "Fairy": 2.0},
+    "Fairy": {"Fire": 0.5, "Fighting": 2.0, "Poison": 0.5, "Dragon": 2.0, "Dark": 2.0, "Steel": 0.5}
+}
+
 class Battle:
     def __init__(self, trainer1, trainer2):
         """
@@ -9,7 +31,7 @@ class Battle:
         self.t1 = trainer1
         self.t2 = trainer2
         self.turn_count = 1
-        self.battle_log = [] # Useful for syncing with your brother in Germany
+        self.battle_log = [] # Useful for syncing future online matches
 
     def start(self):
         """
@@ -22,10 +44,10 @@ class Battle:
             self.run_turn()
             self.turn_count += 1
 
-    
     def check_battle_status(self):
         """
         Checks if both trainers still have at least one conscious Pokemon.
+        Returns False if a trainer is defeated.
         """
         t1_can_fight = any(p.hp_current > 0 for p in self.t1.pokemons)
         t2_can_fight = any(p.hp_current > 0 for p in self.t2.pokemons)
@@ -38,46 +60,78 @@ class Battle:
             return False
         return True
 
+    def handle_faint(self, trainer):
+        """
+        Forces the trainer to switch to a healthy Pokemon if available.
+        Returns True if the trainer can continue, False if defeated.
+        """
+        # Check for remaining conscious Pokemon in team
+        can_continue = any(p.hp_current > 0 for p in trainer.pokemons)
+        
+        if can_continue:
+            print(f"{trainer.name} must choose a new Pokemon!")
+            trainer.switch_pokemon()
+            return True
+        else:
+            print(f"{trainer.name} has no more Pokemon left to fight!")
+            return False
     
     def run_turn(self):
         """
         Orchestrates the sequence of actions in a single turn.
+        Prioritizes Switching/Items before processing Speed-based attacks.
         """
         action1 = self.get_battle_action(self.t1)
         action2 = self.get_battle_action(self.t2)
 
-        # Switching goes first  // Switch happened via trainer method
+        # Phase 1: Switching/Items (Switch logic handled within Trainer method)
         if action1[0] == "SWITCH" or action1[0] == "ITEM":
             pass 
         if action2[0] == "SWITCH" or action2[0] == "ITEM":
             pass
 
-        # Pokemon attacks
+        # Phase 2: Speed check and attacks
         pokemon1 = self.t1.get_active_pokemon()
         pokemon2 = self.t2.get_active_pokemon()
 
-        # Deciding who attacks first
         if action1[0] == "MOVE" and action2[0] == "MOVE":
+            # Determine turn order based on Speed stat
             if pokemon1.stats['Speed'] >= pokemon2.stats['Speed']:
                 self.execute_attack(self.t1, self.t2, action1[1])
-                if self.is_fainted(pokemon2): # Strikes back only if it hasnt fainted
+                
+                # Check if defender survived the first strike
+                if not pokemon2.is_fainted(): 
                     self.execute_attack(self.t2, self.t1, action2[1])
+                else:
+                    print(f"\n{pokemon2.name} fainted!")
+                    if not self.handle_faint(self.t2): return # End turn if trainer is defeated
+            
             else:
                 self.execute_attack(self.t2, self.t1, action2[1])
-                if self.is_fainted(pokemon1):
+                
+                # Check if defender survived the first strike
+                if not pokemon1.is_fainted():
                     self.execute_attack(self.t1, self.t2, action1[1])
+                else:
+                    print(f"\n{pokemon1.name} fainted!")
+                    if not self.handle_faint(self.t1): return # End turn if trainer is defeated
         
-        # Se apenas um atacou (o outro trocou)
+        # Scenario where only one Pokemon attacks (due to switch or item use)
         elif action1[0] == "MOVE":
             self.execute_attack(self.t1, self.t2, action1[1])
+            if pokemon2.is_fainted(): 
+                print(f"\n{pokemon2.name} fainted!")
+                if not self.handle_faint(self.t2): return 
+
         elif action2[0] == "MOVE":
             self.execute_attack(self.t2, self.t1, action2[1])
+            if pokemon1.is_fainted(): 
+                print(f"\n{pokemon1.name} fainted!")
+                if not self.handle_faint(self.t1): return 
 
-
-    def get_battle_action(self,trainer):
+    def get_battle_action(self, trainer):
         """
-        Main menu during a battle turn. 
-        Returns a tuple: (type of action, action details)
+        Displays the battle menu and returns the selected action.
         """
         print(f"\n--- What will {trainer.name} do? ---")
         print("1. Fight")
@@ -87,39 +141,33 @@ class Battle:
         choice = input("Select (1-3): ")
         
         if choice == '1':
-            move = trainer.choose_move() # Seu método que retorna o nome do golpe
+            move = trainer.choose_move() # Returns move name as string
             return ("MOVE", move)
         elif choice == '2':
-            # Aqui chamamos o switch_pokemon que você criou, que já mostra a lista
             trainer.switch_pokemon() 
             return ("SWITCH", trainer.get_active_pokemon())
         else:
-            print("Action not available yet! Please, select again! ")
-            return  self.get_battle_action(trainer)  
+            print("Action not available yet! Please select again.")
+            return self.get_battle_action(trainer) 
 
-
-
-    def bonus_type(self,attacker_type1,attacker_type2, defender_type1, defender_type2):
-        return type_modifier
-
-    def is_fainted(self,pokemon):
+    def bonus_type(self, move_type, defender_types):
         """
-        Checks if the Pokemon has fainted (HP reached 0).
+        Calculates type effectiveness. Multiplies values for dual-type defenders.
         """
-        if pokemon.hp_current <= 0:
-        
-            return True
-        else:
-            return False 
+        modifier = 1.0
+        for d_type in defender_types:
+            if move_type in TYPE_CHART:
+                modifier *= TYPE_CHART[move_type].get(d_type, 1.0)
+        return modifier
 
-    def attack_effect(move_name):
-        return         
-    
-
+    def attack_effect(self, move_name):
+        """Placeholder for future status effects or stat changes."""
+        pass 
 
     def execute_attack(self, attacker_trainer, defender_trainer, move_name):
         """
-        Logic for processing a single attack.
+        Executes a move, calculates damage using the official formula, 
+        and updates the defender's HP.
         """
         attacker = attacker_trainer.get_active_pokemon()
         defender = defender_trainer.get_active_pokemon()
@@ -127,34 +175,37 @@ class Battle:
             
         print(f"{attacker.name} used {move_name}!")
             
-        # Damage calculation logic here
+        # PP check through MoveManager
         if not attacker.move_manager.spend_pp(move_name):
             return
             
+        # Official Damage Formula components
         level_part = (2 * attacker.level / 5) + 2
         stat_ratio = attacker.stats['Attack'] / defender.stats['Defense']
         base_damage = ((level_part * move_data.power * stat_ratio) / 50) + 2
         random_factor = random.uniform(0.85, 1.0)
             
-        # STAB (Same Type Attack Bonus): x1.5 if the type is the same as the pokemon
-        stab = 1.5 if move_data.type == attacker.type1 or move_data.type == attacker.type2 else 1.0
+        # STAB check: x1.5 if move type matches attacker's type
+        stab = 1.5 if move_data.type in attacker.types else 1.0
 
-        # Extra bonus for type
-        type_modifier = bonus_type(attacker.type1,attacker.type2, defender.type1, defender.type2)
+        # Type effectiveness calculation
+        type_modifier = self.bonus_type(move_data.type, defender.types)
+        if type_modifier > 1:
+            print("It's super effective!")
+        elif 0 < type_modifier < 1:
+            print("It's not very effective...")
+        elif type_modifier == 0:
+            print(f"It doesn't affect {defender.name}...")
         
-        # Multiplicador final
+        # Calculate and apply final damage
         modifier = random_factor * stab * type_modifier
         final_damage = int(base_damage * modifier)
 
-        # Damage application
         defender.hp_current -= final_damage
         if defender.hp_current < 0:
             defender.hp_current = 0
 
-        # Check Fainited
-        if is_fainted(defender) == True:
+        # Execute secondary effects
+        self.attack_effect(move_name)
 
-        else:
-            attack_effect(move_name)
-
-        return    
+        return
