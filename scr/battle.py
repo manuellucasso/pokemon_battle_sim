@@ -1,5 +1,5 @@
 import random
-from data_loader import MOVES_LIBRARY
+from data_loader import MOVES_LIBRARY, typewriter_print
 
 # Type Effectiveness Chart
 TYPE_CHART = {
@@ -37,10 +37,10 @@ class Battle:
         """
         Main battle loop that runs until one trainer has no usable Pokemon.
         """
-        print(f"\n--- Battle Started: {self.t1.name} vs {self.t2.name} ---")
+        typewriter_print(f"\n--- Battle Started: {self.t1.name} vs {self.t2.name} ---")
         
         while self.check_battle_status():
-            print(f"\n=== Turn {self.turn_count} ===")
+            typewriter_print(f"\n=== Turn {self.turn_count} ===")
             self.run_turn()
             self.turn_count += 1
 
@@ -53,10 +53,10 @@ class Battle:
         t2_can_fight = any(p.hp_current > 0 for p in self.t2.pokemons)
         
         if not t1_can_fight:
-            print(f"\n{self.t1.name} is out of usable Pokemon! {self.t2.name} wins!")
+            typewriter_print(f"\n{self.t1.name} is out of usable Pokemon! {self.t2.name} wins!")
             return False
         if not t2_can_fight:
-            print(f"\n{self.t2.name} is out of usable Pokemon! {self.t1.name} wins!")
+            typewriter_print(f"\n{self.t2.name} is out of usable Pokemon! {self.t1.name} wins!")
             return False
         return True
 
@@ -69,11 +69,11 @@ class Battle:
         can_continue = any(p.hp_current > 0 for p in trainer.pokemons)
         
         if can_continue:
-            print(f"{trainer.name} must choose a new Pokemon!")
+            typewriter_print(f"{trainer.name} must choose a new Pokemon!")
             trainer.switch_pokemon()
             return True
         else:
-            print(f"{trainer.name} has no more Pokemon left to fight!")
+            typewriter_print(f"{trainer.name} has no more Pokemon left to fight!")
             return False
     
     def run_turn(self):
@@ -102,9 +102,21 @@ class Battle:
                 # Check if defender survived the first strike
                 if not pokemon2.is_fainted(): 
                     self.execute_attack(self.t2, self.t1, action2[1])
+                    # Check if pokemon1 fainted from the counter-attack
+                    if pokemon1.is_fainted():
+                        typewriter_print(f"\n{pokemon1.name} fainted!")
+                        if self.handle_faint(self.t1): 
+                            pokemon1 = self.t1.get_active_pokemon()            
+                        else:
+                            return
+
                 else:
-                    print(f"\n{pokemon2.name} fainted!")
-                    if not self.handle_faint(self.t2): return # End turn if trainer is defeated
+                    # pokemon2 fainted from the first hit
+                    typewriter_print(f"\n{pokemon2.name} fainted!")
+                    if self.handle_faint(self.t2): 
+                        pokemon2 = self.t2.get_active_pokemon()
+                    else:
+                        return # End turn if trainer is defeated
             
             else:
                 self.execute_attack(self.t2, self.t1, action2[1])
@@ -112,37 +124,54 @@ class Battle:
                 # Check if defender survived the first strike
                 if not pokemon1.is_fainted():
                     self.execute_attack(self.t1, self.t2, action1[1])
+                    # Check if pokemon2 fainted from the counter-attack
+                    if pokemon2.is_fainted():
+                        typewriter_print(f"\n{pokemon2.name} fainted!")
+                        if self.handle_faint(self.t1): 
+                            pokemon2 = self.t2.get_active_pokemon()            
+                        else:
+                            return
+
                 else:
-                    print(f"\n{pokemon1.name} fainted!")
-                    if not self.handle_faint(self.t1): return # End turn if trainer is defeated
+                    typewriter_print(f"\n{pokemon1.name} fainted!")
+                    if self.handle_faint(self.t1): 
+                        pokemon1 = self.t1.get_active_pokemon()
+                    else:
+                        return # End turn if trainer is defeated
         
         # Scenario where only one Pokemon attacks (due to switch or item use)
         elif action1[0] == "MOVE":
             self.execute_attack(self.t1, self.t2, action1[1])
             if pokemon2.is_fainted(): 
-                print(f"\n{pokemon2.name} fainted!")
-                if not self.handle_faint(self.t2): return 
+                typewriter_print(f"\n{pokemon2.name} fainted!")
+                if self.handle_faint(self.t2): 
+                    pokemon2 = self.t2.get_active_pokemon()
+                else:
+                    return 
 
         elif action2[0] == "MOVE":
             self.execute_attack(self.t2, self.t1, action2[1])
             if pokemon1.is_fainted(): 
-                print(f"\n{pokemon1.name} fainted!")
-                if not self.handle_faint(self.t1): return 
+                typewriter_print(f"\n{pokemon1.name} fainted!")
+                if self.handle_faint(self.t1): 
+                    pokemon1 = self.t1.get_active_pokemon()
+                else:
+                    return 
 
-        print("\n" + "-"*30)
-        print("STATUS UPDATE:")
-        print(f"{pokemon1.name}: {pokemon1.hp_current}/{pokemon1.hp_max} HP")
-        print(f"{pokemon2.name}: {pokemon2.hp_current}/{pokemon2.hp_max} HP")
-        print("-"*30)        
+        typewriter_print("\n" + "-"*30)
+        typewriter_print("STATUS UPDATE:")
+        typewriter_print(f"{pokemon1.name}: {pokemon1.hp_current}/{pokemon1.hp_max} HP")
+        typewriter_print(f"{pokemon2.name}: {pokemon2.hp_current}/{pokemon2.hp_max} HP")
+        typewriter_print("-"*30)        
 
     def get_battle_action(self, trainer):
         """
         Displays the battle menu and returns the selected action.
         """
-        print(f"\n--- What will {trainer.name} do? ---")
-        print("1. Fight")
-        print("2. Switch Pokemon")
-        print("3. Item (Not implemented)")
+        typewriter_print(f"\n--- What will {trainer.name} do? ---")
+        typewriter_print("1. Fight")
+        typewriter_print("2. Switch Pokemon")
+        typewriter_print("3. Item (Not implemented)")
         
         choice = input("Select (1-3): ")
         
@@ -153,7 +182,7 @@ class Battle:
             trainer.switch_pokemon() 
             return ("SWITCH", trainer.get_active_pokemon())
         else:
-            print("Action not available yet! Please select again.")
+            typewriter_print("Action not available yet! Please select again.")
             return self.get_battle_action(trainer) 
 
     def bonus_type(self, move_type, defender_type):
@@ -179,7 +208,7 @@ class Battle:
         defender = defender_trainer.get_active_pokemon()
         move_data = MOVES_LIBRARY[move_name]
             
-        print(f"{attacker.name} used {move_name}!")
+        typewriter_print(f"{attacker.name} used {move_name}!")
             
         # PP check through MoveManager
         if not attacker.move_manager.spend_pp(move_name):
@@ -197,11 +226,11 @@ class Battle:
         # Type effectiveness calculation
         type_modifier = self.bonus_type(move_data.type, defender.type)
         if type_modifier > 1:
-            print("It's super effective!")
+            typewriter_print("It's super effective!")
         elif 0 < type_modifier < 1:
-            print("It's not very effective...")
+            typewriter_print("It's not very effective...")
         elif type_modifier == 0:
-            print(f"It doesn't affect {defender.name}...")
+            typewriter_print(f"It doesn't affect {defender.name}...")
         
         # Calculate and apply final damage
         modifier = random_factor * stab * type_modifier

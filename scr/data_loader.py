@@ -1,7 +1,17 @@
 import pandas as pd
 from move import Move
 import os
+import time
+import sys
 
+
+def typewriter_print(text, delay=0.03):
+    """Prints text one character at a time to simulate a classic RPG feel."""
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush() # Força o terminal a mostrar a letra imediatamente
+        time.sleep(delay)
+    print() # Pula para a próxima linha no final
 
 def get_data_folder():
     base_path = os.path.dirname(os.path.abspath(__file__))

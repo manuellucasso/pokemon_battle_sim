@@ -1,6 +1,7 @@
 import random
 from move import Move
 from move_manager import MoveManager
+from data_loader import typewriter_print
 
 class Pokemon:
     def __init__(self, POKEMON_DATA, level, status_conditions=None):
@@ -50,7 +51,7 @@ class Pokemon:
         Adds XP and triggers level-up sequence if the threshold is met.
         """
         self.xp_current += xp
-        print(f"\n{self.name} gained {xp} XP!")
+        typewriter_print(f"\n{self.name} gained {xp} XP!")
 
         # Check for multiple level-ups if enough XP is gained
         while self.xp_current >= self.xp_max:
@@ -61,7 +62,7 @@ class Pokemon:
         Increases level and updates all stats and thresholds accordingly.
         """
         self.level += 1            
-        print(f"\n{self.name} leveled up to level {self.level}!")
+        typewriter_print(f"\n{self.name} leveled up to level {self.level}!")
 
         # Recalculate stats for the new level
         self.stats = self.stats_calculator(self.level, self.initial_stats)
