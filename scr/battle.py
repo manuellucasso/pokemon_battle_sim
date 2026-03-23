@@ -1,5 +1,7 @@
 import random
 from data_loader import MOVES_LIBRARY, typewriter_print
+from battle_effects import BattleEffectsMixin
+from battle_states import BattleStates
 
 # Type Effectiveness Chart
 TYPE_CHART = {
@@ -23,7 +25,7 @@ TYPE_CHART = {
     "Fairy": {"Fire": 0.5, "Fighting": 2.0, "Poison": 0.5, "Dragon": 2.0, "Dark": 2.0, "Steel": 0.5}
 }
 
-class Battle:
+class Battle(BattleEffectsMixin):
     def __init__(self, trainer1, trainer2):
         """
         Initializes a battle between two trainers.
@@ -32,6 +34,8 @@ class Battle:
         self.t2 = trainer2
         self.turn_count = 1
         self.battle_log = [] # Useful for syncing future online matches
+        self.t1_flag ={}
+        self.t2_flag = {}
 
     def start(self):
         """
@@ -98,10 +102,17 @@ class Battle:
             # Determine turn order based on Speed stat
             if pokemon1.stats['Speed'] >= pokemon2.stats['Speed']:
                 self.execute_attack(self.t1, self.t2, action1[1])
+
+                # Check flags and status before attack
+                if BattleStates.can_attack(pokemon1):
+                    self.execute_attack(self.t1, self.t2, action1[1])
                 
                 # Check if defender survived the first strike
-                if not pokemon2.is_fainted(): 
-                    self.execute_attack(self.t2, self.t1, action2[1])
+                if not pokemon2.is_fainted():
+                    # Check flags and status before attack
+                    if BattleStates.can_attack(pokemon2):
+                        self.execute_attack(self.t2, self.t1, action2[1])
+                    
                     # Check if pokemon1 fainted from the counter-attack
                     if pokemon1.is_fainted():
                         typewriter_print(f"\n{pokemon1.name} fainted!")
@@ -119,15 +130,21 @@ class Battle:
                         return # End turn if trainer is defeated
             
             else:
-                self.execute_attack(self.t2, self.t1, action2[1])
+                # Check flags and status before attack
+                if BattleStates.can_attack(pokemon2):
+                    self.execute_attack(self.t2, self.t1, action2[1])
                 
                 # Check if defender survived the first strike
                 if not pokemon1.is_fainted():
-                    self.execute_attack(self.t1, self.t2, action1[1])
+                    
+                    # Check flags and status before attack
+                    if BattleStates.can_attack(pokemon1):
+                        self.execute_attack(self.t1, self.t2, action1[1])
+                    
                     # Check if pokemon2 fainted from the counter-attack
                     if pokemon2.is_fainted():
                         typewriter_print(f"\n{pokemon2.name} fainted!")
-                        if self.handle_faint(self.t1): 
+                        if self.handle_faint(self.t): 
                             pokemon2 = self.t2.get_active_pokemon()            
                         else:
                             return
@@ -141,7 +158,11 @@ class Battle:
         
         # Scenario where only one Pokemon attacks (due to switch or item use)
         elif action1[0] == "MOVE":
-            self.execute_attack(self.t1, self.t2, action1[1])
+            
+            # Check flags and status before attack
+            if BattleStates.can_attack(pokemon1):
+                self.execute_attack(self.t1, self.t2, action1[1])
+            
             if pokemon2.is_fainted(): 
                 typewriter_print(f"\n{pokemon2.name} fainted!")
                 if self.handle_faint(self.t2): 
@@ -150,7 +171,11 @@ class Battle:
                     return 
 
         elif action2[0] == "MOVE":
-            self.execute_attack(self.t2, self.t1, action2[1])
+            
+            # Check flags and status before attack
+            if BattleStates.can_attack(pokemon2):
+                self.execute_attack(self.t2, self.t1, action2[1])
+            
             if pokemon1.is_fainted(): 
                 typewriter_print(f"\n{pokemon1.name} fainted!")
                 if self.handle_faint(self.t1): 
@@ -178,9 +203,18 @@ class Battle:
         if choice == '1':
             move = trainer.choose_move() # Returns move name as string
             return ("MOVE", move)
+        
         elif choice == '2':
+            active_poke = trainer.get_active_pokemon()
+            
+            # TRAP CHECK: Prevent switching if trapped
+            if active_poke.trap_turns > 0:
+                typewriter_print(f"{active_poke.name} is trapped by an attack and cannot switch out!")
+                return self.get_battle_action(trainer) # Ask for input again    
+
             trainer.switch_pokemon() 
             return ("SWITCH", trainer.get_active_pokemon())
+        
         else:
             typewriter_print("Action not available yet! Please select again.")
             return self.get_battle_action(trainer) 
@@ -231,16 +265,41 @@ class Battle:
             typewriter_print("It's not very effective...")
         elif type_modifier == 0:
             typewriter_print(f"It doesn't affect {defender.name}...")
-        
+
         # Calculate and apply final damage
         modifier = random_factor * stab * type_modifier
         final_damage = int(base_damage * modifier)
 
-        defender.hp_current -= final_damage
-        if defender.hp_current < 0:
-            defender.hp_current = 0
-
         # Execute secondary effects
-        self.attack_effect(move_name)
+        effect_result = self.attack_effect(move_name,attacker,defender,final_damage)
+
+        if effect_result == "flinch":
+            defender.is_flinching = True
+                
+        if isinstance(effect_result, tuple): # Verifica se retornou uma tupla (flag, valor)
+            flag, value = effect_result
+
+            if flag == "raise_evasion":
+                attacker.evasion_multiplier *= value
+            
+            if flag == "lower_accuracy":
+                defender.accuracy_multiplier *= value
+            
+            if flag == "is_traped":
+                # Only apply if not already trapped
+                if defender.trap_turns == 0: 
+                    defender.trap_turns = value    
+
+        # Checking if it will miss or not
+        hit_chance = int(move_data.accuracy) * (attacker.accuracy_multiplier / defender.evasion_multiplier)
+
+        if random.randint(1, 100) > hit_chance:
+            typewriter_print(f"{attacker.name}'s attack missed!")
+            return # No damage
+        
+        else:
+            defender.hp_current -= final_damage
+            if defender.hp_current < 0:
+                defender.hp_current = 0
 
         return

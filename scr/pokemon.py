@@ -30,6 +30,13 @@ class Pokemon:
         self.hp_current = self.hp_max    # Starts with full HP
         self.xp_current = 0              # Accumulated experience
         self.status_conditions = status_conditions if status_conditions else []
+        self.evasion_multiplier = 1
+        self.accuracy_multiplier = 1
+
+        # State Flags for battle
+        self.is_flinching = False
+        self.is_recharging = False
+        self.trap_turns = 0
         
         # Move set and status management
         self.move_set_list = POKEMON_DATA["lvl_up"]

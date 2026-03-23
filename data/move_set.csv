@@ -87,7 +87,7 @@ Minimize,Normal,0,0,20,Status,Sharply raise Evasion
 Mirror Move,Flying,0,0,20,Status,Copies last move
 Mist,Ice,0,0,30,Status,Protects stats
 Night Shade,Ghost,0,100,15,Special,Fixed level damage
-Pay Day,Normal,40,100,20,Physical,Gains money
+Pay Day,Normal,40,100,20,Physical,None
 Peck,Flying,35,100,35,Physical,None
 Petal Dance,Grass,70,100,20,Special,Confuses user after
 Pin Missile,Bug,14,85,20,Physical,Hits 2-5 times
@@ -153,7 +153,7 @@ Thunder Shock,Electric,40,100,30,Special,10% chance paralyze
 Thunder Wave,Electric,0,100,20,Status,Causes paralysis
 Thunderbolt,Electric,95,100,15,Special,10% chance paralyze
 Toxic,Poison,0,85,10,Status,Severe poison
-Transform,Normal,0,0,10,Status,User becomes target
+Transform,Normal,0,0,10,Status,None
 Tri Attack,Normal,80,100,10,Special,None
 Twineedle,Bug,25,100,20,Physical,Hits twice
 Vise Grip,Normal,55,100,30,Physical,None
