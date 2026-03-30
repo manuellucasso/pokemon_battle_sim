@@ -36,7 +36,22 @@ class Pokemon:
         # State Flags for battle
         self.is_flinching = False
         self.is_recharging = False
+        self.is_preparing = False
         self.trap_turns = 0
+        self.stats_protected = False
+        self.status_proctected_turns = 0
+        self.is_seeded = False
+        self.is_half_spe = False
+        self.is_half_phy = False
+        self.is_half_spe_turns = 0
+        self.is_half_phy_turns = 0
+        self.bide_turns = 0
+        self.bide_damage_taken = 0
+        self.charge_turns = 0
+        self.last_move_used = None
+        self.is_hidden = False
+        self.is_blocked_switch = False
+
         
         # Move set and status management
         self.move_set_list = POKEMON_DATA["lvl_up"]

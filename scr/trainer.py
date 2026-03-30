@@ -13,6 +13,9 @@ class Trainer:
         self.inventory = {}  # Stores items, e.g., {"Potion": 5}
         self.is_ai = is_ai
 
+         # State Flags for battle
+        self.can_act= True
+
     def add_pokemon(self, pokemon_instance):
         """
         Adds a pre-instantiated Pokemon to the trainer's party.
@@ -45,16 +48,17 @@ class Trainer:
         try:
             choice = int(input(f"\nSelect a Pokemon to send out (1-{len(self.pokemons)}): "))-1
             
-            if 0 <= choice < len(self.pokemons):
+            if 0 <= choice < len(self.pokemons) and not self.pokemons[choice].is_blocked_switch:
                 if choice == self.active_pokemon_index:
                     print(f"{self.pokemons[choice].name} is already in battle!")
                 elif self.pokemons[choice].hp_current > 0:
                     self.active_pokemon_index = choice
                     print(f"Go! {self.pokemons[choice].name}!")
                 else:
-                    print(f"{self.pokemons[choice].name} has no energy left to fight!")
+                    print(f"{self.pokemons[choice].name} has no energy left to fight or can't be switched!")
             else:
-                print("Invalid choice. Switching canceled.")
+                print("Invalid choice. Try again.")
+                self.switch_pokemon()
         
         except ValueError:
             print("Invalid input. Please enter a number.")

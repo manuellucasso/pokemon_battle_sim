@@ -1,13 +1,13 @@
 move_name,type,power,accuracy,pp,category,effect
 Absorb,Grass,20,100,20,Special,Recover 50% damage
 Acid,Poison,40,100,30,Special,10% chance lower Defense
-Acid Armor,Poison,0,0,40,Status,Sharply raise Defense
-Agility,Psychic,0,0,30,Status,Sharply raise Speed
-Amnesia,Psychic,0,0,20,Status,Sharply raise Special
+Acid Armor,Poison,0,100,40,Status,Sharply raise Defense
+Agility,Psychic,0,100,30,Status,Sharply raise Speed
+Amnesia,Psychic,0,100,20,Status,Sharply raise Special
 Aurora Beam,Ice,65,100,20,Special,10% chance lower Attack
 Barrage,Normal,15,85,20,Physical,Hits 2-5 times
-Barrier,Psychic,0,0,30,Status,Sharply raise Defense
-Bide,Normal,0,0,10,Physical,Endure 2 turns and recoil
+Barrier,Psychic,0,100,30,Status,Sharply raise Defense
+Bide,Normal,0,100,10,Physical,Endure 2 turns and recoil
 Bind,Normal,15,75,20,Physical,Traps for 2-5 turns
 Bite,Normal,60,100,25,Physical,10% chance flinch
 Blizzard,Ice,120,70,5,Special,10% chance freeze
@@ -18,20 +18,20 @@ Bubble,Water,20,100,30,Special,10% chance lower Speed
 Bubble Beam,Water,65,100,20,Special,10% chance lower Speed
 Clamp,Water,35,75,10,Physical,Traps for 2-5 turns
 Comet Punch,Normal,18,85,15,Physical,Hits 2-5 times
-Confuse Ray,Ghost,0,100,10,Status,Causes confusion
+Confuse Ray,Ghost,0,100,10,Status,causes confusion
 Confusion,Psychic,50,100,25,Special,10% chance confuse
 Constrict,Normal,10,100,35,Physical,10% chance lower Speed
-Conversion,Normal,0,0,30,Status,Changes user type to target
+Conversion,Normal,0,100,30,Status,Changes user type to target
 Counter,Fighting,0,100,20,Physical,Double damage if hit
 Crabhammer,Water,90,85,10,Physical,High critical ratio
 Cut,Normal,50,95,30,Physical,None
-Defense Curl,Normal,0,0,40,Status,Raise Defense
-Dig,Ground,100,100,10,Physical,2-turn move
+Defense Curl,Normal,0,100,40,Status,Raise Attack
+Dig,Ground,100,100,10,Physical,2-turn invulnerable
 Disable,Normal,0,55,20,Status,Disable last move
 Dizzy Punch,Normal,70,100,10,Physical,None
 Double Kick,Fighting,30,100,30,Physical,Hits twice
 Double Slap,Normal,15,85,10,Physical,Hits 2-5 times
-Double Team,Normal,0,0,15,Status,Raise Evasion
+Double Team,Normal,0,100,15,Status,Raise Evasion
 Double-Edge,Normal,100,100,15,Physical,Recoil damage
 Dragon Rage,Dragon,0,100,10,Special,Fixed 40 damage
 Dream Eater,Psychic,100,100,15,Special,Recover 50% damage
@@ -46,17 +46,17 @@ Fire Spin,Fire,15,70,15,Special,Traps for 2-5 turns
 Fissure,Ground,0,30,5,Physical,One-hit KO
 Flamethrower,Fire,95,100,15,Special,10% chance burn
 Flash,Normal,0,70,20,Status,Lower accuracy
-Fly,Flying,70,95,15,Physical,2-turn move
-Focus Energy,Normal,0,0,30,Status,High critical ratio
+Fly,Flying,70,95,15,Physical,2-turn invulnerable
+Focus Energy,Normal,0,100,30,Status,High critical ratio
 Fury Attack,Normal,15,85,20,Physical,Hits 2-5 times
 Fury Swipes,Normal,18,80,15,Physical,Hits 2-5 times
 Glare,Normal,0,75,30,Status,Causes paralysis
 Growl,Normal,0,100,40,Status,Lower Attack
-Growth,Normal,0,0,40,Status,Raise Special
+Growth,Normal,0,100,40,Status,Raise Special
 Guillotine,Normal,0,30,5,Physical,One-hit KO
 Gust,Normal,40,100,35,Special,None
-Harden,Normal,0,0,30,Status,Raise Defense
-Haze,Ice,0,0,30,Status,Reset stats
+Harden,Normal,0,100,30,Status,Raise Defense
+Haze,Ice,0,100,30,Status,Reset stats
 Headbutt,Normal,70,100,15,Physical,30% chance flinch
 High Jump Kick,Fighting,85,90,20,Physical,Self-damage on miss
 Horn Attack,Normal,65,100,25,Physical,None
@@ -64,7 +64,7 @@ Horn Drill,Normal,0,30,5,Physical,One-hit KO
 Hydro Pump,Water,120,80,5,Special,None
 Hyper Beam,Normal,150,90,5,Special,1-turn recharge
 Hyper Fang,Normal,80,90,15,Physical,10% chance flinch
-Hypnosis,Psychic,0,60,20,Status,Causes sleep
+Hypnosis,Psychic,0,60,20,Status,100% chance sleep
 Ice Beam,Ice,95,100,10,Special,10% chance freeze
 Ice Punch,Ice,75,100,15,Physical,10% chance freeze
 Jump Kick,Fighting,70,95,25,Physical,Self-damage on miss
@@ -74,18 +74,18 @@ Leech Life,Bug,20,100,15,Physical,Recover 50% damage
 Leech Seed,Grass,0,90,10,Status,Steals HP each turn
 Leer,Normal,0,100,30,Status,Lower Defense
 Lick,Ghost,20,100,30,Physical,30% chance paralyze
-Light Screen,Psychic,0,0,30,Status,Halve Special damage
+Light Screen,Psychic,0,100,30,Status,Halve Special damage
 Lovely Kiss,Normal,0,75,10,Status,Causes sleep
 Low Kick,Fighting,50,90,20,Physical,30% chance flinch
-Meditate,Psychic,0,0,40,Status,Raise Attack
+Meditate,Psychic,0,100,40,Status,Raise Attack
 Mega Drain,Grass,40,100,15,Special,Recover 50% damage
 Mega Kick,Normal,120,75,5,Physical,None
 Mega Punch,Normal,80,85,20,Physical,None
-Metronome,Normal,0,0,10,Status,Uses random move
+Metronome,Normal,0,100,10,Status,Uses random move
 Mimic,Normal,0,100,10,Status,Copies last move
-Minimize,Normal,0,0,20,Status,Sharply raise Evasion
-Mirror Move,Flying,0,0,20,Status,Copies last move
-Mist,Ice,0,0,30,Status,Protects stats
+Minimize,Normal,0,100,20,Status,Raise Evasion
+Mirror Move,Flying,0,100,20,Status,Copies last move
+Mist,Ice,0,100,30,Status,Protects stats
 Night Shade,Ghost,0,100,15,Special,Fixed level damage
 Pay Day,Normal,40,100,20,Physical,None
 Peck,Flying,35,100,35,Physical,None
@@ -102,9 +102,9 @@ Quick Attack,Normal,40,100,30,Physical,Priority move
 Rage,Normal,20,100,20,Physical,Raises Attack when hit
 Razor Leaf,Grass,55,95,25,Physical,High critical ratio
 Razor Wind,Normal,80,75,10,Special,2-turn move
-Recover,Normal,0,0,20,Status,Heal 50% HP
-Reflect,Psychic,0,0,20,Status,Halve Physical damage
-Rest,Psychic,0,0,10,Status,Heal and sleep 2 turns
+Recover,Normal,0,100,20,Status,Heal 50% HP
+Reflect,Psychic,0,100,20,Status,Halve Physical damage
+Rest,Psychic,0,100,10,Status,Heal and sleep 2 turns
 Roar,Normal,0,100,20,Status,Force switch
 Rock Slide,Rock,75,90,10,Physical,30% chance flinch
 Rock Throw,Rock,50,65,15,Physical,None
@@ -114,7 +114,7 @@ Scratch,Normal,40,100,35,Physical,None
 Screech,Normal,0,85,40,Status,Sharply lower Defense
 Seismic Toss,Fighting,0,100,20,Physical,Fixed level damage
 Self-Destruct,Normal,130,100,5,Physical,User faints
-Sharpen,Normal,0,0,30,Status,Raise Attack
+Sharpen,Normal,0,100,30,Status,Raise Attack
 Sing,Normal,0,55,15,Status,Causes sleep
 Skull Bash,Normal,100,100,15,Physical,2-turn move
 Sky Attack,Flying,140,90,5,Physical,2-turn move
@@ -124,11 +124,11 @@ Sleep Powder,Grass,0,75,15,Status,Causes sleep
 Sludge,Poison,65,100,20,Special,30% chance poison
 Smog,Poison,20,70,20,Special,40% chance poison
 Smokescreen,Normal,0,100,20,Status,Lower accuracy
-Soft-Boiled,Normal,0,0,10,Status,Heal 50% HP
+Soft-Boiled,Normal,0,100,10,Status,Heal 50% HP
 Solar Beam,Grass,120,100,10,Special,2-turn move
 Sonic Boom,Normal,0,90,20,Special,Fixed 20 damage
 Spike Cannon,Normal,20,100,15,Physical,Hits 2-5 times
-Splash,Normal,0,0,40,Status,No effect
+Splash,Normal,0,100,40,Status,No effect
 Spore,Grass,0,100,15,Status,Causes sleep
 Stomp,Normal,65,100,20,Physical,30% chance flinch
 Strength,Normal,80,100,15,Physical,None
@@ -136,16 +136,16 @@ String Shot,Bug,0,95,40,Status,Lower Speed
 Struggle,Normal,50,100,10,Physical,User takes recoil
 Stun Spore,Grass,0,75,30,Status,Causes paralysis
 Submission,Fighting,80,80,20,Physical,Recoil damage
-Substitute,Normal,0,0,10,Status,Uses 25% HP for decoy
+Substitute,Normal,0,100,10,Status,Uses 25% HP for decoy
 Super Fang,Normal,0,90,10,Physical,Halves current HP
 Supersonic,Normal,0,55,20,Status,Causes confusion
 Surf,Water,95,100,15,Special,None
-Swift,Normal,60,0,20,Special,Never misses
-Sword Dance,Normal,0,0,30,Status,Sharply raise Attack
+Swift,Normal,60,100,20,Special,Never misses
+Sword Dance,Normal,0,100,30,Status,Sharply raise Attack
 Tackle,Normal,35,95,35,Physical,None
 Tail Whip,Normal,0,100,30,Status,Lower Defense
 Take Down,Normal,90,85,20,Physical,Recoil damage
-Teleport,Psychic,0,0,20,Status,Escape battle
+Teleport,Psychic,0,100,20,Status,Escape battle
 Thrash,Normal,90,100,20,Physical,Confuses user after
 Thunder,Electric,120,70,10,Special,10% chance paralyze
 Thunder Punch,Electric,75,100,15,Physical,10% chance paralyze
@@ -153,7 +153,7 @@ Thunder Shock,Electric,40,100,30,Special,10% chance paralyze
 Thunder Wave,Electric,0,100,20,Status,Causes paralysis
 Thunderbolt,Electric,95,100,15,Special,10% chance paralyze
 Toxic,Poison,0,85,10,Status,Severe poison
-Transform,Normal,0,0,10,Status,None
+Transform,Normal,0,100,10,Status,None
 Tri Attack,Normal,80,100,10,Special,None
 Twineedle,Bug,25,100,20,Physical,Hits twice
 Vise Grip,Normal,55,100,30,Physical,None
@@ -162,5 +162,5 @@ Water Gun,Water,40,100,25,Special,None
 Waterfall,Water,80,100,15,Physical,None
 Whirlwind,Normal,0,100,20,Status,Force switch
 Wing Attack,Flying,35,100,35,Physical,None
-Withdraw,Water,0,0,40,Status,Raise Defense
+Withdraw,Water,0,100,40,Status,Raise Defense
 Wrap,Normal,15,85,20,Physical,Traps for 2-5 turns

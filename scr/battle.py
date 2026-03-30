@@ -85,9 +85,40 @@ class Battle(BattleEffectsMixin):
         Orchestrates the sequence of actions in a single turn.
         Prioritizes Switching/Items before processing Speed-based attacks.
         """
-        action1 = self.get_battle_action(self.t1)
-        action2 = self.get_battle_action(self.t2)
+        # Check if trainers can act (for future status effects that may prevent action)
+        if self.t1.can_act:
+            action1 = self.get_battle_action(self.t1)
+        else:
+            action1[0] = "MOVE"
+            action1[1] = self.t1.get_active_pokemon().last_move_used
 
+        if self.t2.can_act:
+            action2 = self.get_battle_action(self.t2)
+        else:
+            action2[0] = "MOVE"
+            action2[1] = self.t2.get_active_pokemon().last_move_used
+
+        # Checking it is was mimic or random move and adjusting the action accordingly
+        if action1[0]=="MOVE" and action1[1].lower()=="mimic":
+            last_move = self.t2.get_active_pokemon().last_move_used
+            if last_move:
+                action1 = ("MOVE", last_move)
+            else:
+                typewriter_print(f"But it failed! {self.t2.get_active_pokemon().name} hasn't used a move yet!")
+                action1 = ("MOVE", "Splash") # Default to a weak move if Mimic fails
+
+        if action1[0]=="MOVE" and action1[1].lower()=="metronome":
+            random_move = MOVES_LIBRARY[random.choice(list(MOVES_LIBRARY.keys()))].name
+            if random_move:
+                action1 = ("MOVE", random_move) 
+
+
+        if action2[0]=="MOVE" and action2[1].lower()=="metronome":
+            random_move = MOVES_LIBRARY[random.choice(list(MOVES_LIBRARY.keys()))].name
+            if random_move:
+                action2 = ("MOVE", random_move)
+     
+     
         # Phase 1: Switching/Items (Switch logic handled within Trainer method)
         if action1[0] == "SWITCH" or action1[0] == "ITEM":
             pass 
@@ -98,20 +129,49 @@ class Battle(BattleEffectsMixin):
         pokemon1 = self.t1.get_active_pokemon()
         pokemon2 = self.t2.get_active_pokemon()
 
+        if action1[0] == "MOVE":
+            if action1[1].lower() == "quick attack":
+                pokemon1_speed = 10000+pokemon1.stats['Speed'] # Quick Attack always goes first
+            else:   
+                pokemon1_speed = pokemon1.stats['Speed']
+        
+        if action2[0] == "MOVE":
+            if action2[1].lower() == "quick attack":
+                pokemon2_speed = 10000+pokemon2.stats['Speed'] # Quick Attack always goes first
+            else:
+                pokemon2_speed = pokemon2.stats['Speed']
+
         if action1[0] == "MOVE" and action2[0] == "MOVE":
             # Determine turn order based on Speed stat
-            if pokemon1.stats['Speed'] >= pokemon2.stats['Speed']:
-                self.execute_attack(self.t1, self.t2, action1[1])
+            if pokemon1_speed >= pokemon2_speed:
 
                 # Check flags and status before attack
                 if BattleStates.can_attack(pokemon1):
                     self.execute_attack(self.t1, self.t2, action1[1])
+
+                elif BattleStates.can_attack(pokemon1)=="unleash_bide":
+                    typewriter_print(f"{pokemon1.name} unleashed energy!")
+                    vengence = pokemon1.bide_damage_taken * 2
+                    pokemon2.hp_current = max(0, pokemon2.hp_current - vengence)
+                    typewriter_print(f"It dealt {vengence} damage!")
+                
+                    # Zero Bide
+                    pokemon1.bide_damage_taken = 0   
                 
                 # Check if defender survived the first strike
                 if not pokemon2.is_fainted():
                     # Check flags and status before attack
                     if BattleStates.can_attack(pokemon2):
                         self.execute_attack(self.t2, self.t1, action2[1])
+
+                    elif BattleStates.can_attack(pokemon2)=="unleash_bide":
+                        typewriter_print(f"{pokemon2.name} unleashed energy!")
+                        vengence = pokemon2.bide_damage_taken * 2
+                        pokemon1.hp_current = max(0, pokemon1.hp_current - vengence)
+                        typewriter_print(f"It dealt {vengence} damage!")
+                    
+                        # Zero Bide
+                        pokemon2.bide_damage_taken = 0     
                     
                     # Check if pokemon1 fainted from the counter-attack
                     if pokemon1.is_fainted():
@@ -133,6 +193,15 @@ class Battle(BattleEffectsMixin):
                 # Check flags and status before attack
                 if BattleStates.can_attack(pokemon2):
                     self.execute_attack(self.t2, self.t1, action2[1])
+
+                elif BattleStates.can_attack(pokemon2)=="unleash_bide":
+                        typewriter_print(f"{pokemon2.name} unleashed energy!")
+                        vengence = pokemon2.bide_damage_taken * 2
+                        pokemon1.hp_current = max(0, pokemon1.hp_current - vengence)
+                        typewriter_print(f"It dealt {vengence} damage!")
+
+                        # Zero Bide
+                        pokemon2.bide_damage_taken = 0      
                 
                 # Check if defender survived the first strike
                 if not pokemon1.is_fainted():
@@ -140,6 +209,15 @@ class Battle(BattleEffectsMixin):
                     # Check flags and status before attack
                     if BattleStates.can_attack(pokemon1):
                         self.execute_attack(self.t1, self.t2, action1[1])
+
+                    elif BattleStates.can_attack(pokemon1)=="unleash_bide":
+                        typewriter_print(f"{pokemon1.name} unleashed energy!")
+                        vengence = pokemon1.bide_damage_taken * 2
+                        pokemon2.hp_current = max(0, pokemon2.hp_current - vengence)
+                        typewriter_print(f"It dealt {vengence} damage!")
+                    
+                        # Zero Bide
+                        pokemon1.bide_damage_taken = 0     
                     
                     # Check if pokemon2 fainted from the counter-attack
                     if pokemon2.is_fainted():
@@ -162,6 +240,15 @@ class Battle(BattleEffectsMixin):
             # Check flags and status before attack
             if BattleStates.can_attack(pokemon1):
                 self.execute_attack(self.t1, self.t2, action1[1])
+
+            elif BattleStates.can_attack(pokemon1)=="unleash_bide":
+                    typewriter_print(f"{pokemon1.name} unleashed energy!")
+                    vengence = pokemon1.bide_damage_taken * 2
+                    pokemon2.hp_current = max(0, pokemon2.hp_current - vengence)
+                    typewriter_print(f"It dealt {vengence} damage!")
+                
+                    # Zero Bide
+                    pokemon1.bide_damage_taken = 0     
             
             if pokemon2.is_fainted(): 
                 typewriter_print(f"\n{pokemon2.name} fainted!")
@@ -175,13 +262,25 @@ class Battle(BattleEffectsMixin):
             # Check flags and status before attack
             if BattleStates.can_attack(pokemon2):
                 self.execute_attack(self.t2, self.t1, action2[1])
+
+            elif BattleStates.can_attack(pokemon2)=="unleash_bide":
+                        typewriter_print(f"{pokemon2.name} unleashed energy!")
+                        vengence = pokemon2.bide_damage_taken * 2
+                        pokemon1.hp_current = max(0, pokemon1.hp_current - vengence)
+                        typewriter_print(f"It dealt {vengence} damage!")
+
+                        # Zero Bide
+                        pokemon2.bide_damage_taken = 0    
             
             if pokemon1.is_fainted(): 
                 typewriter_print(f"\n{pokemon1.name} fainted!")
                 if self.handle_faint(self.t1): 
                     pokemon1 = self.t1.get_active_pokemon()
                 else:
-                    return 
+                    return
+
+        BattleStates.apply_end_of_turn_effects(pokemon1, pokemon2,self.t1)     
+        BattleStates.apply_end_of_turn_effects(pokemon2, pokemon1,self.t2)     
 
         typewriter_print("\n" + "-"*30)
         typewriter_print("STATUS UPDATE:")
@@ -202,6 +301,7 @@ class Battle(BattleEffectsMixin):
         
         if choice == '1':
             move = trainer.choose_move() # Returns move name as string
+            trainer.get_active_pokemon().last_move_used = move # Store last move for future reference
             return ("MOVE", move)
         
         elif choice == '2':
@@ -251,7 +351,7 @@ class Battle(BattleEffectsMixin):
         # Official Damage Formula components
         level_part = (2 * attacker.level / 5) + 2
         stat_ratio = attacker.stats['Attack'] / defender.stats['Defense']
-        base_damage = ((level_part * int(move_data.power) * stat_ratio) / 50) + 2
+        base_damage = ((level_part * int(move_data.power) * stat_ratio) / 50)
         random_factor = random.uniform(0.85, 1.0)
             
         # STAB check: x1.5 if move type matches attacker's type
@@ -266,40 +366,95 @@ class Battle(BattleEffectsMixin):
         elif type_modifier == 0:
             typewriter_print(f"It doesn't affect {defender.name}...")
 
+
+        # Calculate protection modifier based on defender's current state and move type
+        protection_modifier = BattleStates.calculate_modifier_protection(defender, move_data)
+
         # Calculate and apply final damage
-        modifier = random_factor * stab * type_modifier
+        modifier = random_factor * stab * type_modifier * protection_modifier
         final_damage = int(base_damage * modifier)
-
-        # Execute secondary effects
-        effect_result = self.attack_effect(move_name,attacker,defender,final_damage)
-
-        if effect_result == "flinch":
-            defender.is_flinching = True
-                
-        if isinstance(effect_result, tuple): # Verifica se retornou uma tupla (flag, valor)
-            flag, value = effect_result
-
-            if flag == "raise_evasion":
-                attacker.evasion_multiplier *= value
-            
-            if flag == "lower_accuracy":
-                defender.accuracy_multiplier *= value
-            
-            if flag == "is_traped":
-                # Only apply if not already trapped
-                if defender.trap_turns == 0: 
-                    defender.trap_turns = value    
 
         # Checking if it will miss or not
         hit_chance = int(move_data.accuracy) * (attacker.accuracy_multiplier / defender.evasion_multiplier)
 
-        if random.randint(1, 100) > hit_chance:
+        if move_name.lower() == "swift":
+            hit_chance=100
+
+        # Execute secondary effects
+        effect_result = BattleEffectsMixin.attack_effect(move_name,attacker,defender,final_damage)
+                
+        # Verify if it's a tuple of just a flag
+        flag = "none"
+        if isinstance(effect_result, tuple): 
+            flag, value = effect_result
+
+        elif isinstance(effect_result, str):
+            flag = effect_result 
+  
+
+        # Test for hit
+        if random.randint(1, 100) > hit_chance or defender.is_hidden:
             typewriter_print(f"{attacker.name}'s attack missed!")
+
+            if flag == "self_on_miss":
+                BattleStates.is_self_on_miss(attacker, final_damage)
+                return # no no damage
+
             return # No damage
         
         else:
-            defender.hp_current -= final_damage
-            if defender.hp_current < 0:
-                defender.hp_current = 0
+            
+            if flag=="fixed_damage":
+                BattleStates.is_fixed(attacker,defender, move_data, final_damage)
+
+            elif flag=="preparing":
+                BattleStates.is_preparing(attacker, defender, move_data, final_damage, attacker_trainer)    
+            
+            elif flag=="multi_hits":
+                BattleStates.is_multi(attacker, defender, move_data, value, final_damage)
+
+            elif flag=="self_damage":
+                BattleStates.is_selfie(attacker, defender, move_data, final_damage)
+
+            elif flag == "faint" or flag == "one_ko":
+                mon = defender if flag == "one_ko" else attacker
+                BattleStates.is_faint(mon)
+
+            elif flag=="force_switch":
+                BattleStates.is_force_switch(self, defender_trainer) 
+
+            elif flag=="high_crit":
+                BattleStates.is_high_crit(attacker, defender, move_data, final_damage)
+
+            elif flag=="variable_damage":
+                BattleStates.is_variable_damage(attacker, defender, move_data)
+
+            elif flag=="double_at_hit":
+                BattleStates.is_double_at_hit(attacker, defender, move_data, final_damage)
+
+            elif flag=="protect_stats":
+                BattleStates.is_protect_stats(attacker_trainer,value) 
+                
+            elif flag=="escape":
+                BattleStates.is_escape(attacker) 
+
+            elif flag=="halve_special":
+                BattleStates.is_protect_spe(attacker_trainer,value) 
+
+            elif flag=="halve_physical":
+                BattleStates.is_protect_phy(attacker_trainer, value)        
+
+            else:
+                               
+                defender.hp_current -= final_damage
+                if defender.hp_current < 0:
+                    defender.hp_current = 0
+
+                elif defender.bide_turns > 0:
+                    defender.bide_damage_taken += final_damage
+                    typewriter_print(f"{defender.name} is storing energy!")    
 
         return
+    
+
+

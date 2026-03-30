@@ -12,14 +12,14 @@ def test_suite(GLOBAL_POKEMON_DATA, GLOBAL_MOVES_LIBRARY):
     typewriter_print("\n--- Sample Pokemon Creation ---")
     
     # Create a sample Pokemon instances 
-    pikachu = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Pikachu'], level=3, status_conditions=None)   
+    pikachu = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Pikachu'], level=10, status_conditions=None)   
     typewriter_print(f"\nCreated Pokemon: {pikachu.name}, Level: {pikachu.level}, HP: {pikachu.hp_current}/{pikachu.hp_max}")
     typewriter_print(f"\n--- {pikachu.name} has {pikachu.xp_current} out of {pikachu.xp_max}")
 
-    cartepie=Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Caterpie'], level=3, status_conditions=None)   
+    cartepie=Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Caterpie'], level=10, status_conditions=None)   
     typewriter_print(f"\nCreated Pokemon: {cartepie.name}, Level: {cartepie.level}, HP: {cartepie.hp_current}/{cartepie.hp_max}")
 
-    gloom=Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Gloom'], level=3, status_conditions=None)   
+    gloom=Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Gloom'], level=10, status_conditions=None)   
     typewriter_print(f"\nCreated Pokemon: {gloom.name}, Level: {gloom.level}, HP: {gloom.hp_current}/{gloom.hp_max}")
 
     
@@ -27,7 +27,7 @@ def test_suite(GLOBAL_POKEMON_DATA, GLOBAL_MOVES_LIBRARY):
     # gain_xp, level_up, stats_calculator from pokemon class
     # learn_move_by_level_up, learn_move from move_manager class
     typewriter_print("\n--- Pokemon gain XP ---")
-    pikachu.gain_xp(27)
+    pikachu.gain_xp(100)
 
     typewriter_print(f"\n--- {pikachu.name} has {pikachu.xp_current} out of {pikachu.xp_max}")
 
@@ -67,11 +67,11 @@ def test_suite(GLOBAL_POKEMON_DATA, GLOBAL_MOVES_LIBRARY):
 
     # Create a Pokemon for the rival
     # Let's give him a Squirtle to test Type Advantages (Electric vs Water)
-    squirtle = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Squirtle'], level=5, status_conditions=None)
+    squirtle = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Squirtle'], level=10, status_conditions=None)
     rival.add_pokemon(squirtle)
     
     # Give him another one to test the handle_faint method
-    pidgey = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Pidgey'], level=4, status_conditions=None)
+    pidgey = Pokemon(POKEMON_DATA=GLOBAL_POKEMON_DATA['Pidgey'], level=10, status_conditions=None)
     rival.add_pokemon(pidgey)
 
     typewriter_print(f"\n{rival.name} enters the battle with {squirtle.name} and {pidgey.name}!")
