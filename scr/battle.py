@@ -1,5 +1,5 @@
 import random
-from data_loader import MOVES_LIBRARY, typewriter_print
+from data_loader import MOVES_LIBRARY, typewriter_print, set_network_connection
 from battle_effects import BattleEffectsMixin
 from battle_states import BattleStates
 
@@ -26,7 +26,7 @@ TYPE_CHART = {
 }
 
 class Battle(BattleEffectsMixin):
-    def __init__(self, trainer1, trainer2):
+    def __init__(self, trainer1, trainer2, network_socket=None):
         """
         Initializes a battle between two trainers.
         """
@@ -37,14 +37,23 @@ class Battle(BattleEffectsMixin):
         self.t1_flag ={}
         self.t2_flag = {}
 
+        # Save the network connection
+        self.network_connection = network_socket
+
+        # Plug the network cable into the printing system!
+        if self.network_connection:
+            set_network_connection(self.network_connection)
+
     def start(self):
         """
         Main battle loop that runs until one trainer has no usable Pokemon.
         """
-        typewriter_print(f"\n--- Battle Started: {self.t1.name} vs {self.t2.name} ---")
+        typewriter_print("")
+        typewriter_print(f"--- Battle Started: {self.t1.name} vs {self.t2.name} ---")
         
         while self.check_battle_status():
-            typewriter_print(f"\n=== Turn {self.turn_count} ===")
+            typewriter_print("")
+            typewriter_print(f"=== Turn {self.turn_count} ===")
             self.run_turn()
             self.turn_count += 1
 
@@ -57,10 +66,12 @@ class Battle(BattleEffectsMixin):
         t2_can_fight = any(p.hp_current > 0 for p in self.t2.pokemons)
         
         if not t1_can_fight:
-            typewriter_print(f"\n{self.t1.name} is out of usable Pokemon! {self.t2.name} wins!")
+            typewriter_print("")
+            typewriter_print(f"{self.t1.name} is out of usable Pokemon! {self.t2.name} wins!")
             return False
         if not t2_can_fight:
-            typewriter_print(f"\n{self.t2.name} is out of usable Pokemon! {self.t1.name} wins!")
+            typewriter_print("")
+            typewriter_print(f"{self.t2.name} is out of usable Pokemon! {self.t1.name} wins!")
             return False
         return True
 
@@ -119,16 +130,26 @@ class Battle(BattleEffectsMixin):
                 action2 = ("MOVE", random_move)
      
      
-        # Phase 1: Switching/Items (Switch logic handled within Trainer method)
-        if action1[0] == "SWITCH" or action1[0] == "ITEM":
-            pass 
-        if action2[0] == "SWITCH" or action2[0] == "ITEM":
-            pass
-
-        # Phase 2: Speed check and attacks
         pokemon1 = self.t1.get_active_pokemon()
         pokemon2 = self.t2.get_active_pokemon()
 
+        # Phase 1: Switching/Items (Switch logic handled within Trainer method)
+        if action1[0] == "SWITCH":
+            typewriter_print(f"{self.t1.name} switched the Pokemon! Go! {self.t1.get_active_pokemon().name}!", broadcast=True)
+            pass 
+        elif action1[0] == "ITEM":
+            typewriter_print(f"{self.t1.name} used an item!")
+            pass
+
+        if action2[0] == "SWITCH":
+            typewriter_print(f"{self.t2.name} switched the Pokemon! Go! {self.t2.get_active_pokemon().name}!", broadcast=True)
+            pass
+        elif action2[0] == "ITEM":
+            typewriter_print(f"{self.t2.name} used an item!")
+            pass
+
+        
+        # Phase 1: Speed check and attacks
         if action1[0] == "MOVE":
             if action1[1].lower() == "quick attack":
                 pokemon1_speed = 10000+pokemon1.stats['Speed'] # Quick Attack always goes first
@@ -175,7 +196,8 @@ class Battle(BattleEffectsMixin):
                     
                     # Check if pokemon1 fainted from the counter-attack
                     if pokemon1.is_fainted():
-                        typewriter_print(f"\n{pokemon1.name} fainted!")
+                        typewriter_print("")
+                        typewriter_print(f"{pokemon1.name} fainted!")
                         if self.handle_faint(self.t1): 
                             pokemon1 = self.t1.get_active_pokemon()            
                         else:
@@ -183,7 +205,8 @@ class Battle(BattleEffectsMixin):
 
                 else:
                     # pokemon2 fainted from the first hit
-                    typewriter_print(f"\n{pokemon2.name} fainted!")
+                    typewriter_print("")
+                    typewriter_print(f"{pokemon2.name} fainted!")
                     if self.handle_faint(self.t2): 
                         pokemon2 = self.t2.get_active_pokemon()
                     else:
@@ -221,14 +244,16 @@ class Battle(BattleEffectsMixin):
                     
                     # Check if pokemon2 fainted from the counter-attack
                     if pokemon2.is_fainted():
-                        typewriter_print(f"\n{pokemon2.name} fainted!")
+                        typewriter_print("")
+                        typewriter_print(f"{pokemon2.name} fainted!")
                         if self.handle_faint(self.t): 
                             pokemon2 = self.t2.get_active_pokemon()            
                         else:
                             return
 
                 else:
-                    typewriter_print(f"\n{pokemon1.name} fainted!")
+                    typewriter_print("")
+                    typewriter_print(f"{pokemon1.name} fainted!")
                     if self.handle_faint(self.t1): 
                         pokemon1 = self.t1.get_active_pokemon()
                     else:
@@ -251,7 +276,8 @@ class Battle(BattleEffectsMixin):
                     pokemon1.bide_damage_taken = 0     
             
             if pokemon2.is_fainted(): 
-                typewriter_print(f"\n{pokemon2.name} fainted!")
+                typewriter_print("")
+                typewriter_print(f"{pokemon2.name} fainted!")
                 if self.handle_faint(self.t2): 
                     pokemon2 = self.t2.get_active_pokemon()
                 else:
@@ -272,8 +298,9 @@ class Battle(BattleEffectsMixin):
                         # Zero Bide
                         pokemon2.bide_damage_taken = 0    
             
-            if pokemon1.is_fainted(): 
-                typewriter_print(f"\n{pokemon1.name} fainted!")
+            if pokemon1.is_fainted():
+                typewriter_print("") 
+                typewriter_print(f"{pokemon1.name} fainted!")
                 if self.handle_faint(self.t1): 
                     pokemon1 = self.t1.get_active_pokemon()
                 else:
@@ -282,7 +309,8 @@ class Battle(BattleEffectsMixin):
         BattleStates.apply_end_of_turn_effects(pokemon1, pokemon2,self.t1)     
         BattleStates.apply_end_of_turn_effects(pokemon2, pokemon1,self.t2)     
 
-        typewriter_print("\n" + "-"*30)
+        typewriter_print("")
+        typewriter_print("-" * 30)
         typewriter_print("STATUS UPDATE:")
         typewriter_print(f"{pokemon1.name}: {pokemon1.hp_current}/{pokemon1.hp_max} HP")
         typewriter_print(f"{pokemon2.name}: {pokemon2.hp_current}/{pokemon2.hp_max} HP")
@@ -292,13 +320,29 @@ class Battle(BattleEffectsMixin):
         """
         Displays the battle menu and returns the selected action.
         """
-        typewriter_print(f"\n--- What will {trainer.name} do? ---")
-        typewriter_print("1. Fight")
-        typewriter_print("2. Switch Pokemon")
-        typewriter_print("3. Item (Not implemented)")
         
-        choice = input("Select (1-3): ")
+        # The visual menu - This is automatically sent to the client via our new typewriter_print!
+        typewriter_print("")
+        typewriter_print(f"--- What will {trainer.name} do? ---",is_me=trainer.is_local, broadcast=False)
+        typewriter_print("1. Fight",is_me=trainer.is_local, broadcast=False)
+        typewriter_print("2. Switch Pokemon",is_me=trainer.is_local, broadcast=False)
+        typewriter_print("3. Item (Not implemented)",is_me=trainer.is_local, broadcast=False)
         
+        # --- THE NETWORK CROSSROADS ---
+        # If it is the opponent's turn (t2) AND we are playing online
+        if trainer == self.t2 and self.network_connection:
+            
+            # 1. Send the tag to unlock the client's keyboard
+            self.network_connection.send("ACTION|CHOOSE_ACTION".encode('utf-8'))
+            
+            # 2. Pause the server and wait for the client's response over the internet
+            choice = self.network_connection.recv(1024).decode('utf-8')
+            
+        else:
+            # If it is your turn (t1) or an offline match, use local keyboard
+            choice = input("Select (1-3): ")
+
+        # --- ACTION PROCESSING ---       
         if choice == '1':
             move = trainer.choose_move() # Returns move name as string
             trainer.get_active_pokemon().last_move_used = move # Store last move for future reference
@@ -316,7 +360,7 @@ class Battle(BattleEffectsMixin):
             return ("SWITCH", trainer.get_active_pokemon())
         
         else:
-            typewriter_print("Action not available yet! Please select again.")
+            typewriter_print("Action not available yet! Please select again.",is_me=trainer.is_local, broadcast=False)
             return self.get_battle_action(trainer) 
 
     def bonus_type(self, move_type, defender_type):

@@ -5,13 +5,46 @@ import time
 import sys
 
 
-def typewriter_print(text, delay=0.03):
-    """Prints text one character at a time to simulate a classic RPG feel."""
-    for char in text:
-        sys.stdout.write(char)
-        sys.stdout.flush() # Força o terminal a mostrar a letra imediatamente
-        time.sleep(delay)
-    print() # Pula para a próxima linha no final
+# Global variable to hold the network socket
+# It starts as None so the game works perfectly offline
+NETWORK_CONNECTION = None
+
+def set_network_connection(connection):
+    """
+    Allows the main battle engine to plug the network socket in here.
+    """
+    global NETWORK_CONNECTION
+    NETWORK_CONNECTION = connection
+
+def typewriter_print(text, delay=0.03,is_me=True, broadcast=True):
+    """
+    Prints text with a typewriter effect based on visibility flags.
+    
+    - broadcast=True: Shows on both Screen 1 and Screen 2.
+    - broadcast=False & is_me=True: Shows ONLY on Screen 1 (Host).
+    - broadcast=False & is_me=False: Shows ONLY on Screen 2 (Client).
+    """
+    # Logic based on your rules:
+    show_local = broadcast or (not broadcast and is_me)
+    show_remote = broadcast or (not broadcast and not is_me)
+
+    # --- Screen 1 (Local/Host) ---
+    if show_local:
+        for char in text:
+            sys.stdout.write(char)
+            sys.stdout.flush()
+            time.sleep(delay)
+        print()
+
+    # --- Screen 2 (Remote/Client) ---
+    global NETWORK_CONNECTION
+    if NETWORK_CONNECTION and show_remote:
+        try:
+            message = f"PRINT|{text}\n"
+            NETWORK_CONNECTION.send(message.encode('utf-8'))
+            time.sleep(0.05) 
+        except Exception:
+            pass
 
 def get_data_folder():
     base_path = os.path.dirname(os.path.abspath(__file__))
